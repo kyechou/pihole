@@ -1,0 +1,56 @@
+services:
+  pihole:
+    image: pihole/pihole:latest
+    restart: unless-stopped
+    container_name: pihole
+    volumes:
+      - ./etc-pihole:/etc/pihole
+      - ./etc-dnsmasq.d:/etc/dnsmasq.d
+    networks:
+      - pihole
+    ports:
+      - 53:53/tcp
+      - 53:53/udp
+      # - 80:80/tcp
+    environment:
+      - TZ: America/Chicago
+      - DNSMASQ_LISTENING: all
+      - WEBPASSWORD
+  caddy:
+    image: caddy:alpine
+    restart: unless-stopped
+    container_name: pihole-caddy
+    environment:
+      - FQDN
+    volumes:
+      - type: bind
+        source: ./Caddyfile
+        target: /etc/caddy/Caddyfile
+      - ./caddy/certs:/certs
+      - ./caddy/data:/data
+      - ./caddy/config:/config
+      - ./tailscale_sock:/var/run/tailscale/:ro # Mount the volume for /var/run/tailscale/tailscale.sock
+    network_mode: service:tailscale
+  tailscale:
+    image: tailscale/tailscale:latest
+    environment:
+      - TS_HOSTNAME
+      - TS_AUTH_KEY
+      - TS_EXTRA_ARGS
+    init: true
+    restart: unless-stopped
+    container_name: pihole-tailscale
+    volumes:
+      - /dev/net/tun:/dev/net/tun
+      - ./tailscale:/var/lib/tailscale
+      - ./tailscale_sock:/tmp
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    networks:
+      - pihole
+networks:
+  pihole:
+    name: pihole
+    driver: bridge
+    enable_ipv6: false
