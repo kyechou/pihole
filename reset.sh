@@ -3,12 +3,8 @@
 set -x
 
 mapfile -t containers < <(docker ps --filter name=pihole -q)
-docker stop "${containers[@]}"
-docker compose down --remove-orphans -v
+if [[ ${#containers[@]} -ne 0 ]]; then
+    docker compose down --remove-orphans -v
+fi
 
-mapfile -t containers < <(docker ps -a --filter name=pihole -q)
-docker rm "${containers[@]}"
-docker compose down --remove-orphans -v
-
-# docker volume prune -a
-# sudo rm -rf /data/nextcloud
+sudo rm -rf caddy etc-* tailscale tailscale_sock

@@ -13,23 +13,28 @@ services:
       - 53:53/udp
       # - 80:80/tcp
     environment:
-      - TZ: America/Chicago
-      - DNSMASQ_LISTENING: all
+      - TZ=America/Chicago
       - WEBPASSWORD
+      - PIHOLE_DNS_=10.1.1.1;1.1.1.1;8.8.8.8
+      - DNS_BOGUS_PRIV=false # default: true
+      - DNS_FQDN_REQUIRED=false # default: true
+      - DHCP_ACTIVE=false
+      - VIRTUAL_HOST
+      - QUERY_LOGGING=true
+      - WEBTHEME=default-dark
   caddy:
     image: caddy:alpine
     restart: unless-stopped
     container_name: pihole-caddy
     environment:
-      - FQDN
+      - VIRTUAL_HOST
     volumes:
-      - type: bind
-        source: ./Caddyfile
-        target: /etc/caddy/Caddyfile
+      - ./Caddyfile:/etc/caddy/Caddyfile
       - ./caddy/certs:/certs
       - ./caddy/data:/data
       - ./caddy/config:/config
-      - ./tailscale_sock:/var/run/tailscale/:ro # Mount the volume for /var/run/tailscale/tailscale.sock
+      # Mount the volume for /var/run/tailscale/tailscale.sock
+      - ./tailscale_sock:/var/run/tailscale/:ro
     network_mode: service:tailscale
   tailscale:
     image: tailscale/tailscale:latest
