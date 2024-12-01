@@ -15,7 +15,8 @@ services:
     environment:
       - TZ=America/Chicago
       - WEBPASSWORD
-      - PIHOLE_DNS_=10.1.1.1;1.1.1.1;8.8.8.8
+      - PIHOLE_DNS_=1.1.1.1;1.0.0.1;8.8.8.8;8.8.4.4
+      - DNSSEC=true
       - DNS_BOGUS_PRIV=false # default: true
       - DNS_FQDN_REQUIRED=false # default: true
       - DHCP_ACTIVE=false
