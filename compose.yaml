@@ -23,6 +23,7 @@ services:
       - VIRTUAL_HOST
       - QUERY_LOGGING=true
       - WEBTHEME=default-dark
+      - DNSMASQ_LISTENING=all
   caddy:
     image: caddy:alpine
     restart: unless-stopped
